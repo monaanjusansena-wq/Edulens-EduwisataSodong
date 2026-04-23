@@ -3,156 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edu-LENS: Etnobotani & Ekoliterasi Desa Sodong</title>
-    <!-- Library untuk Augmented Reality -->
+    <title>Edu-LENS Web-AR</title>
     <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body { margin: 0; overflow: hidden; font-family: sans-serif; }
-        .ui-overlay {
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 90%;
-            max-width: 400px;
-            z-index: 1000;
-            display: none;
-        }
-        .menu-overlay {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            z-index: 1001;
-        }
-        #scan-indicator {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            border: 2px solid rgba(255,255,255,0.5);
-            width: 250px;
-            height: 250px;
-            border-radius: 20px;
-            pointer-events: none;
-        }
-    </style>
 </head>
-<body>
+<body style="margin: 0; overflow: hidden;">
 
-    <!-- Tombol Menu Daftar Tanaman -->
-    <div class="menu-overlay">
-        <button onclick="toggleList()" class="bg-green-600 text-white p-3 rounded-full shadow-lg">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <line x1="4" y1="6" x2="20" y2="6" stroke="white" stroke-width="2"/>
-              <line x1="4" y1="12" x2="20" y2="12" stroke="white" stroke-width="2"/>
-              <line x1="4" y1="18" x2="20" y2="18" stroke="white" stroke-width="2"/>
-            </svg>
-        </button>
-    </div>
-
-    <!-- Panel Informasi Tanaman -->
-    <div id="info-panel" class="ui-overlay bg-white rounded-3xl shadow-2xl p-6 border-t-4 border-green-500">
-        <div class="flex justify-between items-start mb-2">
-            <h2 id="plant-name" class="text-2xl font-bold text-green-800">Nama Tanaman</h2>
-            <span id="plant-latin" class="text-xs italic text-gray-500">Nama Ilmiah</span>
-        </div>
+    <div id="info-panel" style="position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 400px; z-index: 9999; display: none;" class="bg-white rounded-2xl shadow-2xl p-6 border-t-4 border-green-500">
+        <h2 id="plant-name" class="text-2xl font-bold text-green-800">Nama Tanaman</h2>
+        <p id="plant-latin" class="text-sm italic text-gray-500 mb-4"></p>
         <div class="mb-4">
-            <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wider">Fakta Etnobotani</h3>
-            <p id="plant-fact" class="text-gray-600 text-sm leading-relaxed">Informasi kearifan lokal.</p>
+            <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest">Fakta Etnobotani</h3>
+            <p id="plant-fact" class="text-gray-700 text-sm"></p>
         </div>
-        <div class="bg-green-50 p-3 rounded-xl border border-green-100">
-            <h3 class="text-sm font-semibold text-green-700 uppercase tracking-wider">Aksi Ekoliterasi</h3>
-            <p id="plant-eco" class="text-green-800 text-sm italic">Pesan kesadaran lingkungan.</p>
-        </div>
-        <button onclick="hideInfo()" class="mt-4 w-full py-2 text-gray-400 text-xs uppercase tracking-widest">Tutup</button>
-    </div>
-
-    <!-- Daftar Tanaman (Slide Over) -->
-    <div id="plant-list" class="fixed inset-0 bg-black bg-opacity-50 z-[2000] hidden">
-        <div class="absolute right-0 top-0 h-full w-80 bg-white shadow-xl p-6 overflow-y-auto">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-xl font-bold text-green-700">Daftar Edu-LENS</h2>
-                <button onclick="toggleList()" class="text-2xl text-gray-500">&times;</button>
-            </div>
-            <div id="list-container" class="space-y-3">
-                <!-- Data diisi via JS -->
-            </div>
+        <div class="bg-green-50 p-3 rounded-lg">
+            <h3 class="text-xs font-bold text-green-600 uppercase tracking-widest">Aksi Ekoliterasi</h3>
+            <p id="plant-eco" class="text-green-800 text-sm italic"></p>
         </div>
     </div>
 
-    <div id="scan-indicator"></div>
-
-    <!-- Scene AR -->
-    <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono_and_matrix; matrixCodeType: 3x3;">
-        
-        <!-- Marker Hiro -->
-        <a-marker preset="hiro" id="marker-hiro">
-            <a-sphere position="0 0.5 0" radius="0.5" color="#4ADE80" animation="property: rotation; to: 0 360 0; loop: true; dur: 5000"></a-sphere>
-            <a-text value="Edu-LENS" position="0 1.2 0" align="center" color="white" width="4"></a-text>
+    <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;">
+        <a-marker preset="hiro">
+            <a-sphere position="0 0.5 0" radius="0.5" color="#4ADE80"></a-sphere>
         </a-marker>
-
         <a-entity camera></a-entity>
     </a-scene>
 
     <script>
-        const plantData = [
-            { name: "Jagung", latin: "Zea mays", fact: "Energi utama dari ladang lokal.", eco: "Menyerap CO2 lebih cepat untuk udara bersih." },
-            { name: "Buah Naga", latin: "Hylocereus undatus", fact: "Kaktus berbuah yang kaya serat.", eco: "Bukti adaptasi cerdas di lingkungan kering." },
-            { name: "Kakao", latin: "Theobroma cacao", fact: "Biji buah unik asal cokelat lezat.", eco: "Pahlawan tumpang sari penyejuk kebun." },
-            { name: "Kangkung", latin: "Ipomoea aquatica", fact: "Sayur hijau yang sangat mudah diolah.", eco: "Penyaring alami yang menjernihkan air." },
-            { name: "Marigold", latin: "Tagetes erecta", fact: "Bunga cantik pelengkap ritual desa.", eco: "Rumah refugia penarik polinator alami." },
-            { name: "Cabe", latin: "Capsicum annuum", fact: "Rasa pedas pembangkit selera makan.", eco: "Indikator pentingnya menjaga suhu mikro." },
-            { name: "Pacar Merah", latin: "Impatiens balsamina", fact: "Pewarna kuku alami dari masa lalu.", eco: "Penjaga kelembapan tanah saat kemarau." },
-            { name: "Talas", latin: "Colocasia esculenta", fact: "Pangan lokal pengganti nasi yang sehat.", eco: "Perhatikan efek lotus pembersih polutan." },
-            { name: "Dukuh", latin: "Lansium domesticum", fact: "Buah manis yang ditunggu tiap musim.", eco: "Tajuk rapatnya menciptakan iklim sejuk." },
-            { name: "Sawo", latin: "Manilkara zapota", fact: "Buah manis dengan getah serbaguna.", eco: "Pohon tangguh pelindung dari cuaca panas." },
-            { name: "Jambu Biji", latin: "Psidium guajava", fact: "Obat pertolongan pertama pada diare.", eco: "Sangat adaptif menghijaukan lahan kritis." },
-            { name: "Nangka", latin: "Artocarpus heterophyllus", fact: "Dari pangan hingga bahan bangunan kuat.", eco: "Akarnya menyimpan cadangan air warga." },
-            { name: "Pepaya", latin: "Carica papaya", fact: "Pencernaan sehat dengan biaya murah.", eco: "Tanaman perintis penyedia pakan burung." },
-            { name: "Belimbing", latin: "Averrhoa carambola", fact: "Si bintang pengontrol tekanan darah.", eco: "Bunganya mendukung hidup lebah madu." },
-            { name: "Sirsak", latin: "Annona muricata", fact: "Buah masam penyegar dahaga & herbal.", eco: "Daunnya adalah pupuk organik alami." },
-            { name: "Ubi", latin: "Ipomoea batatas", fact: "Energi yang tumbuh di bawah tanah.", eco: "Jalinan akarnya mencegah erosi tanah." },
-            { name: "Kelengkeng", latin: "Dimocarpus longan", fact: "Buah manis bernilai ekonomi tinggi.", eco: "Membutuhkan lingkungan bebas pestisida." },
-            { name: "Sambiloto", latin: "Andrographis paniculata", fact: "Raja pahit andalan imunitas warga.", eco: "Menyediakan pestisida alami bagi alam." },
-            { name: "Kunyit", latin: "Curcuma longa", fact: "Rimpang emas bumbu & obat radang.", eco: "Membantu kesuburan mikroba tanah." },
-            { name: "Jeruk Limsu", latin: "Citrus sp.", fact: "Aroma segar penyedap masakan lokal.", eco: "Minyak atsirinya pengusir hama alami." },
-            { name: "Mawar", latin: "Rosa sp.", fact: "Simbol kasih sayang & bahan parfum.", eco: "Bio-indikator kesehatan ekosistem kebun." },
-            { name: "Melon", latin: "Cucumis melo", fact: "Buah meja premium yang sangat segar.", eco: "Pengingat pentingnya irigasi hemat air." },
-            { name: "Markisa", latin: "Passiflora edulis", fact: "Sari buah kaya vitamin penyegar.", eco: "Penyedia koridor hijau bagi polinator." }
-        ];
+        const plantData = {
+            "18": { name: "Sambiloto", latin: "Andrographis paniculata", fact: "Si 'Raja Pahit' andalan warga Sodong untuk jamu imunitas.", eco: "Menanamnya menyediakan pestisida alami bagi lingkungan." },
+            "8": { name: "Talas", latin: "Colocasia esculenta", fact: "Pangan lokal pengganti nasi yang kaya serat.", eco: "Perhatikan 'Efek Lotus' pada daunnya yang menolak air." }
+            // Anda bisa menambah ID lainnya di sini nanti
+        };
 
-        const container = document.getElementById('list-container');
-        plantData.forEach((plant, index) => {
-            const item = document.createElement('div');
-            item.className = "p-3 bg-gray-50 rounded-lg border-l-4 border-green-500 cursor-pointer hover:bg-green-50 transition";
-            item.innerHTML = `<h4 class="font-bold text-sm">${plant.name}</h4><p class="text-xs italic text-gray-500">${plant.latin}</p>`;
-            item.onclick = () => showInfo(index);
-            container.appendChild(item);
-        });
-
-        const marker = document.querySelector('a-marker');
-        const infoPanel = document.getElementById('info-panel');
-
-        marker.addEventListener('markerFound', () => { showInfo(17); }); // Default Sambiloto
-
-        function showInfo(index) {
-            const data = plantData[index];
-            document.getElementById('plant-name').innerText = data.name;
-            document.getElementById('plant-latin').innerText = data.latin;
-            document.getElementById('plant-fact').innerText = data.fact;
-            document.getElementById('plant-eco').innerText = data.eco;
-            infoPanel.style.display = 'block';
-            toggleList(false);
-        }
-
-        function hideInfo() { infoPanel.style.display = 'none'; }
-        function toggleList(force) {
-            const list = document.getElementById('plant-list');
-            if (force === false) list.classList.add('hidden');
-            else list.classList.toggle('hidden');
-        }
+        window.onload = function() {
+            const params = new URLSearchParams(window.location.search);
+            const id = params.get('id');
+            if (id && plantData[id]) {
+                const data = plantData[id];
+                document.getElementById('plant-name').innerText = data.name;
+                document.getElementById('plant-latin').innerText = data.latin;
+                document.getElementById('plant-fact').innerText = data.fact;
+                document.getElementById('plant-eco').innerText = data.eco;
+                document.getElementById('info-panel').style.display = 'block';
+            } else {
+                alert("ID tanaman tidak ditemukan. Gunakan link dengan ?id=18");
+            }
+        };
     </script>
 </body>
 </html>
