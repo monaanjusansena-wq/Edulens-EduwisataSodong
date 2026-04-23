@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edu-LENS Web-AR</title>
+    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+    <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body style="margin: 0; overflow: hidden;">
+
+    <div id="info-panel" style="position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 400px; z-index: 9999; display: none;" class="bg-white rounded-2xl shadow-2xl p-6 border-t-4 border-green-500">
+        <h2 id="plant-name" class="text-2xl font-bold text-green-800">Nama Tanaman</h2>
+        <p id="plant-latin" class="text-sm italic text-gray-500 mb-4"></p>
+        <div class="mb-4">
+            <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest">Fakta Etnobotani</h3>
+            <p id="plant-fact" class="text-gray-700 text-sm"></p>
+        </div>
+        <div class="bg-green-50 p-3 rounded-lg">
+            <h3 class="text-xs font-bold text-green-600 uppercase tracking-widest">Aksi Ekoliterasi</h3>
+            <p id="plant-eco" class="text-green-800 text-sm italic"></p>
+        </div>
+    </div>
+
+    <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;">
+        <a-marker preset="hiro">
+            <a-sphere position="0 0.5 0" radius="0.5" color="#4ADE80"></a-sphere>
+        </a-marker>
+        <a-entity camera></a-entity>
+    </a-scene>
+
+    <script>
+        const plantData = {
+            "18": { name: "Sambiloto", latin: "Andrographis paniculata", fact: "Si 'Raja Pahit' andalan warga Sodong untuk jamu imunitas.", eco: "Menanamnya menyediakan pestisida alami bagi lingkungan." },
+            "8": { name: "Talas", latin: "Colocasia esculenta", fact: "Pangan lokal pengganti nasi yang kaya serat.", eco: "Perhatikan 'Efek Lotus' pada daunnya yang menolak air." }
+            // Anda bisa menambah ID lainnya di sini nanti
+        };
+
+        window.onload = function() {
+            const params = new URLSearchParams(window.location.search);
+            const id = params.get('id');
+            if (id && plantData[id]) {
+                const data = plantData[id];
+                document.getElementById('plant-name').innerText = data.name;
+                document.getElementById('plant-latin').innerText = data.latin;
+                document.getElementById('plant-fact').innerText = data.fact;
+                document.getElementById('plant-eco').innerText = data.eco;
+                document.getElementById('info-panel').style.display = 'block';
+            } else {
+                alert("ID tanaman tidak ditemukan. Gunakan link dengan ?id=18");
+            }
+        };
+    </script>
+</body>
+</html>
